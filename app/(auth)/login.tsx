@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextInput } from "react-native";
+import { StyleSheet, Text } from "react-native";
 import ThemedText from "@/components/ThemedText";
 import ThemedView from "@/components/ThemedView";
 import Spacer from "@/components/Spacer";
@@ -11,11 +11,15 @@ import { useUser } from "@/hooks/useUser";
 export default function Login() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const { user } = useUser();
-  const handleSubmit = () => {
-    console.log("current User", user);
-
-    console.log("login form submitting", email, password);
+  const [error, setError] = useState(null);
+  const { login } = useUser();
+  const handleSubmit = async () => {
+    setError(null);
+    try {
+      await login(email, password);
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
   return (
     <ThemedView style={styles.container}>
@@ -40,6 +44,8 @@ export default function Login() {
       <ThemedButton onPress={handleSubmit}>
         <Text style={{ color: "#f2f2f2" }}>Login</Text>
       </ThemedButton>
+      <Spacer width="100%" height={20} />
+      {error && <Text style={styles.error}>{error}</Text>}
       <Spacer height={100} width="100%" />
       <Link href="/register">
         <ThemedText style={{ textAlign: "center" }}>
@@ -68,5 +74,14 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.8,
+  },
+  error: {
+    color: Colors.warning,
+    padding: 10,
+    backgroundColor: "#f5c1c8",
+    borderColor: Colors.warning,
+    borderWidth: 1,
+    borderRadius: 6,
+    marginHorizontal: 10,
   },
 });
